@@ -1,0 +1,57 @@
+{{- if .Values.global.gateway.enabled }}
+# Single shared Kgateway (Gateway API) Gateway per environment. Replaces the
+# per-service ALB Ingress objects — every service attaches to this Gateway via
+# its own HTTPRoute. Kgateway provisions one Envoy proxy + one Service of type
+# LoadBalancer, which the AWS Load Balancer Controller turns into a single NLB.
+#
+# TLS is terminated at the NLB using the existing ACM certificate (set via the
+# service annotations below), so the Envoy listeners themselves are plain HTTP.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: procurement-{{ .Values.global.environment }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: procurement-platform
+    environment: {{ .Values.global.environment }}
+spec:
+  gatewayClassName: {{ .Values.global.gateway.className }}
+  # Annotations here are propagated by Kgateway onto the generated LoadBalancer
+  # Service, which the AWS Load Balancer Controller reads to build the NLB.
+  infrastructure:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: external
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: {{ .Values.global.gateway.nlb.targetType | quote }}
+      service.beta.kubernetes.io/aws-load-balancer-scheme: {{ .Values.global.gateway.nlb.scheme }}
+      {{- if .Values.global.acmCertArn }}
+      # NLB terminates TLS on 443 with this cert and forwards plaintext to Envoy.
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.global.acmCertArn | quote }}
+      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+      {{- end }}
+  listeners:
+    # Plain HTTP — also the port the NLB forwards :80 traffic to (use for an
+    # app-level redirect to HTTPS if desired).
+    - name: http
+      protocol: HTTP
+      port: 80
+      {{- if .Values.global.domain }}
+      hostname: {{ .Values.global.domain | quote }}
+      {{- end }}
+      allowedRoutes:
+        namespaces:
+          from: Same
+    {{- if .Values.global.acmCertArn }}
+    # HTTP listener that the NLB's TLS :443 listener forwards decrypted traffic
+    # to. Protocol is HTTP (not HTTPS) because TLS already terminated at the NLB.
+    - name: https
+      protocol: HTTP
+      port: 443
+      {{- if .Values.global.domain }}
+      hostname: {{ .Values.global.domain | quote }}
+      {{- end }}
+      allowedRoutes:
+        namespaces:
+          from: Same
+    {{- end }}
+{{- end }}

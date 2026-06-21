@@ -1,0 +1,296 @@
+global:
+  environment: base
+  domain: ""
+  awsRegion: us-east-1
+  s3Bucket: ""
+  kmsKeyId: ""
+  # acmCertArn / wafAclArn are injected by CI/CD from Terraform's outputs at deploy time — never hand-typed.
+  acmCertArn: ""
+  wafAclArn: ""
+  # Kgateway (Gateway API / Envoy) routing. One shared Gateway per environment
+  # provisions a single Envoy proxy + NLB; each service attaches via its own
+  # HTTPRoute. This replaces the previous per-service ALB Ingress objects.
+  gateway:
+    enabled: true
+    className: kgateway
+    nlb:
+      scheme: internet-facing
+      targetType: ip
+
+# Per-service defaults. Previously each charts/<service>/values.yaml carried these
+# independently; consolidated here so every subchart's values come from this single
+# umbrella file (plus values-dev.yaml/values-prod.yaml image+IRSA overrides on top).
+
+identity-service:
+  replicaCount: 1
+  image:
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  securityContext:
+    allowPrivilegeEscalation: false
+  service:
+    type: ClusterIP
+    port: 5001
+    targetPort: 5001
+  healthCheck:
+    path: /api/health
+  # HTTPRoute attaches to the shared Kgateway Gateway. Gateway API ranks rules
+  # by longest-prefix match automatically, so no group.order is needed.
+  httproute:
+    enabled: true
+    pathPrefixes:
+      - /api/auth
+      - /api/users
+      - /api/hr
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
+  extraEnv: {}
+
+procurement-service:
+  replicaCount: 1
+  image:
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  securityContext:
+    allowPrivilegeEscalation: false
+  service:
+    type: ClusterIP
+    port: 5003
+    targetPort: 5003
+  healthCheck:
+    path: /api/health
+  httproute:
+    enabled: true
+    pathPrefixes:
+      - /api/vendors
+      - /api/purchase-requests
+      - /api/purchase-orders
+      - /api/contracts
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
+  extraEnv: {}
+
+finance-service:
+  replicaCount: 1
+  image:
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  securityContext:
+    allowPrivilegeEscalation: false
+  service:
+    type: ClusterIP
+    port: 5002
+    targetPort: 5002
+  healthCheck:
+    path: /api/health
+  httproute:
+    enabled: true
+    pathPrefixes:
+      - /api/invoices
+      - /api/payments
+      - /api/customers
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
+  extraEnv: {}
+
+document-service:
+  replicaCount: 1
+  image:
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  securityContext:
+    allowPrivilegeEscalation: false
+  service:
+    type: ClusterIP
+    port: 5004
+    targetPort: 5004
+  healthCheck:
+    path: /api/health
+  httproute:
+    enabled: true
+    pathPrefixes:
+      - /api/documents
+      - /api/notifications
+      - /api/audit
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
+  extraEnv: {}
+
+ai-service:
+  replicaCount: 1
+  image:
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  securityContext:
+    allowPrivilegeEscalation: false
+  service:
+    type: ClusterIP
+    port: 5006
+    targetPort: 5006
+  healthCheck:
+    path: /api/health
+  httproute:
+    enabled: true
+    pathPrefixes:
+      - /api/ai
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
+  extraEnv: {}
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: ""
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 101
+    fsGroup: 101
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      add:
+        - NET_BIND_SERVICE
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+  healthCheck:
+    path: /
+  # Frontend is the catch-all (/). Longest-prefix ranking means the /api/*
+  # routes above always win over this for API paths.
+  httproute:
+    enabled: true
+    pathPrefixes:
+      - /
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+  pdb:
+    enabled: true
+    minAvailable: 1
+  extraEnv: {}

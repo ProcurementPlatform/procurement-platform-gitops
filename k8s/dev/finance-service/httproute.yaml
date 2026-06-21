@@ -1,0 +1,29 @@
+# Reference manifest — NOT applied by ArgoCD (Helm renders the live HTTPRoute).
+# Attaches finance-service to the shared Gateway (procurement-dev) for the dev environment.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: finance-service
+  namespace: dev
+  labels:
+    app: finance-service
+spec:
+  parentRefs:
+    - name: procurement-dev
+      namespace: dev
+  hostnames:
+    - "<DOMAIN_NAME>"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/invoices
+        - path:
+            type: PathPrefix
+            value: /api/payments
+        - path:
+            type: PathPrefix
+            value: /api/customers
+      backendRefs:
+        - name: finance-service
+          port: 5002

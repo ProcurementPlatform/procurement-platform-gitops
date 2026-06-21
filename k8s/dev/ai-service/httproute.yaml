@@ -1,0 +1,23 @@
+# Reference manifest — NOT applied by ArgoCD (Helm renders the live HTTPRoute).
+# Attaches ai-service to the shared Gateway (procurement-dev) for the dev environment.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ai-service
+  namespace: dev
+  labels:
+    app: ai-service
+spec:
+  parentRefs:
+    - name: procurement-dev
+      namespace: dev
+  hostnames:
+    - "<DOMAIN_NAME>"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /api/ai
+      backendRefs:
+        - name: ai-service
+          port: 5006

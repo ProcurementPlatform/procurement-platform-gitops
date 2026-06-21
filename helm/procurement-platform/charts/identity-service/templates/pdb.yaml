@@ -1,0 +1,14 @@
+{{- /* Only render a PDB when there is more than one replica. With a single
+replica, minAvailable:1 would block node drains/upgrades entirely (the only
+pod can never be evicted), stalling cluster maintenance. */ -}}
+{{- if and .Values.pdb.enabled (gt (int .Values.replicaCount) 1) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "chart.fullname" . }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+{{- end }}

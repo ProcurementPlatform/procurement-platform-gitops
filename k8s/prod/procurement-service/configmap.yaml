@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: procurement-service
+  namespace: production
+data:
+  NODE_ENV: "production"
+  SERVICE_NAME: "procurement-service"
+  PORT: "5003"
+  AWS_REGION: "us-east-1"
+  AWS_SECRET_NAME: "procurement/prod/procurement-service"
+  DYNAMODB_TABLE_PREFIX: "prod-"
+  AWS_S3_BUCKET: "<S3_BUCKET_NAME>"
+  AWS_KMS_KEY_ID: ""
+  CORS_ORIGIN: "https://<DOMAIN_NAME>"

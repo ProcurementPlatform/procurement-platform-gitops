@@ -1,0 +1,53 @@
+global:
+  environment: dev
+  domain: procurement-dev.rxpulse.online
+  awsRegion: us-east-1
+  s3Bucket: procurement-documents-dev-08
+  kmsKeyId: ""
+  acmCertArn: "arn:aws:acm:us-east-1:919010206859:certificate/d238b114-e7cc-416c-aa6a-ab03d3e4b79b"
+  wafAclArn: ""
+# Per-service image and serviceAccount overrides.
+# image.repository and image.tag are updated at deploy time by the CD pipeline.
+# serviceAccount.annotations are injected with the IRSA role ARN by the CD pipeline.
+identity-service:
+  image:
+    repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-identity"
+    tag: "6a6a722"
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-identity-service-irsa
+procurement-service:
+  image:
+    repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-procurement"
+    tag: "6a6a722"
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-procurement-service-irsa
+finance-service:
+  image:
+    repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-finance"
+    tag: "6a6a722"
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-finance-service-irsa
+document-service:
+  image:
+    repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-document"
+    tag: "6a6a722"
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-document-service-irsa
+ai-service:
+  image:
+    repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-ai"
+    tag: "6a6a722"
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-ai-service-irsa
+frontend:
+  image:
+    repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-frontend"
+    tag: "6a6a722"
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-frontend-irsa

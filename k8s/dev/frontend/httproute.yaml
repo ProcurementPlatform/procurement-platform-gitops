@@ -1,0 +1,23 @@
+# Reference manifest — NOT applied by ArgoCD (Helm renders the live HTTPRoute).
+# Attaches frontend to the shared Gateway (procurement-dev) for the dev environment.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: frontend
+  namespace: dev
+  labels:
+    app: frontend
+spec:
+  parentRefs:
+    - name: procurement-dev
+      namespace: dev
+  hostnames:
+    - "<DOMAIN_NAME>"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: frontend
+          port: 80
