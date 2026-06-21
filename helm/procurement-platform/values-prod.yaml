@@ -4,10 +4,9 @@ global:
   awsRegion: us-east-1
   s3Bucket: procurement-documents-prod-08
   kmsKeyId: ""
-  # TLS terminates at the NLB with this ACM cert (see global.gateway). Fill in
-  # the prod cert ARN for procurement.rxpulse.online — until then the Gateway
-  # serves HTTP only. Mirrors how values-dev.yaml carries the dev cert ARN.
-  acmCertArn: ""
+  # TLS terminates at the NLB with this ACM cert (see global.gateway). Wildcard
+  # cert for *.procure-flow.online, already issued — covers this subdomain.
+  acmCertArn: "arn:aws:acm:us-east-1:919010206859:certificate/7b27e59d-f495-4690-a7b5-4de8d21857c9"
   wafAclArn: ""
 # Prod uses human-readable release versions (git tags, e.g. v1.2.0), NOT commit
 # SHAs — image.repository/tag are bumped by the app repo's deploy.yml when a
