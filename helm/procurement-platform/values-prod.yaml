@@ -9,7 +9,6 @@ global:
   # serves HTTP only. Mirrors how values-dev.yaml carries the dev cert ARN.
   acmCertArn: ""
   wafAclArn: ""
-
 # Prod uses human-readable release versions (git tags, e.g. v1.2.0), NOT commit
 # SHAs — image.repository/tag are bumped by the app repo's deploy.yml when a
 # release tag is pushed to main. v1.0.0 is the initial placeholder.
@@ -17,58 +16,59 @@ identity-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-identity"
-    tag: "v1.0.0"
+    tag: "v0.0.1"
   serviceAccount:
-    annotations: {}
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-identity-service-irsa
   autoscaling:
     maxReplicas: 10
-
 procurement-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-procurement"
-    tag: "v1.0.0"
+    tag: "v0.0.1"
   serviceAccount:
-    annotations: {}
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-procurement-service-irsa
   autoscaling:
     maxReplicas: 10
-
 finance-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-finance"
-    tag: "v1.0.0"
+    tag: "v0.0.1"
   serviceAccount:
-    annotations: {}
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-finance-service-irsa
   autoscaling:
     maxReplicas: 10
-
 document-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-document"
-    tag: "v1.0.0"
+    tag: "v0.0.1"
   serviceAccount:
-    annotations: {}
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-document-service-irsa
   autoscaling:
     maxReplicas: 10
-
 ai-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-ai"
-    tag: "v1.0.0"
+    tag: "v0.0.1"
   serviceAccount:
-    annotations: {}
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-ai-service-irsa
   autoscaling:
     maxReplicas: 10
-
 frontend:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-frontend"
-    tag: "v1.0.0"
+    tag: "v0.0.1"
   serviceAccount:
-    annotations: {}
+    annotations:
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-frontend-irsa
   autoscaling:
     maxReplicas: 10
