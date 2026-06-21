@@ -16,19 +16,14 @@ metadata:
     environment: {{ .Values.global.environment }}
 spec:
   gatewayClassName: {{ .Values.global.gateway.className }}
-  # Annotations here are propagated by Kgateway onto the generated LoadBalancer
-  # Service, which the AWS Load Balancer Controller reads to build the NLB.
+  # kgateway reads Service config (annotations/type) from a GatewayParameters
+  # resource via parametersRef, not from infrastructure.annotations directly.
+  # See templates/gatewayparameters.yaml for the actual NLB scheme/cert config.
   infrastructure:
-    annotations:
-      service.beta.kubernetes.io/aws-load-balancer-type: external
-      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: {{ .Values.global.gateway.nlb.targetType | quote }}
-      service.beta.kubernetes.io/aws-load-balancer-scheme: {{ .Values.global.gateway.nlb.scheme }}
-      {{- if .Values.global.acmCertArn }}
-      # NLB terminates TLS on 443 with this cert and forwards plaintext to Envoy.
-      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.global.acmCertArn | quote }}
-      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
-      {{- end }}
+    parametersRef:
+      group: gateway.kgateway.dev
+      kind: GatewayParameters
+      name: procurement-{{ .Values.global.environment }}
   listeners:
     # Plain HTTP — also the port the NLB forwards :80 traffic to (use for an
     # app-level redirect to HTTPS if desired).

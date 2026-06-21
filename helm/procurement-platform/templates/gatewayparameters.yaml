@@ -1,0 +1,28 @@
+{{- if .Values.global.gateway.enabled }}
+# kgateway does not propagate Gateway.spec.infrastructure.annotations to the
+# Service it provisions (verified: the generated Service had zero annotations
+# despite the Gateway requesting internet-facing, leaving the NLB internal).
+# GatewayParameters + infrastructure.parametersRef is kgateway's actual
+# supported mechanism for configuring the backing Service.
+apiVersion: gateway.kgateway.dev/v1alpha1
+kind: GatewayParameters
+metadata:
+  name: procurement-{{ .Values.global.environment }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: procurement-platform
+    environment: {{ .Values.global.environment }}
+spec:
+  kube:
+    service:
+      type: LoadBalancer
+      extraAnnotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: external
+        service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: {{ .Values.global.gateway.nlb.targetType | quote }}
+        service.beta.kubernetes.io/aws-load-balancer-scheme: {{ .Values.global.gateway.nlb.scheme }}
+        {{- if .Values.global.acmCertArn }}
+        service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.global.acmCertArn | quote }}
+        service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+        service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+        {{- end }}
+{{- end }}
