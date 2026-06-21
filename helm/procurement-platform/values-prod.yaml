@@ -1,6 +1,6 @@
 global:
   environment: prod
-  domain: procurement.rxpulse.online
+  domain: procurement.procure-flow.online
   awsRegion: us-east-1
   s3Bucket: procurement-documents-prod-08
   kmsKeyId: ""
