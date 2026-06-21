@@ -21,3 +21,12 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+  # Every service has an HPA managing spec.replicas live. Without this,
+  # selfHeal fights the HPA every reconcile: HPA scales -> ArgoCD sees drift
+  # from git's replica count -> reverts it -> HPA scales again -> flapping
+  # OutOfSync/Synced forever. This tells ArgoCD to stop comparing replicas.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
