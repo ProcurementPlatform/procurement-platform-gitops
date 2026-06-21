@@ -4,7 +4,11 @@ global:
   awsRegion: us-east-1
   s3Bucket: procurement-documents-dev-08
   kmsKeyId: ""
-  acmCertArn: "arn:aws:acm:us-east-1:919010206859:certificate/d238b114-e7cc-416c-aa6a-ab03d3e4b79b"
+  # Same wildcard cert as prod (*.procure-flow.online covers any single-level
+  # subdomain). Previous value (d238b114-...) no longer exists in ACM —
+  # dangling reference from before the rxpulse.online -> procure-flow.online
+  # domain fix, would have broken dev HTTPS the moment dev was ever deployed.
+  acmCertArn: "arn:aws:acm:us-east-1:919010206859:certificate/7b27e59d-f495-4690-a7b5-4de8d21857c9"
   wafAclArn: ""
 # Per-service image and serviceAccount overrides.
 # image.repository and image.tag are updated at deploy time by the CD pipeline.
