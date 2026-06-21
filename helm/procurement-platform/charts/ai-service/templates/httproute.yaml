@@ -24,4 +24,10 @@ spec:
       backendRefs:
         - name: {{ include "chart.fullname" . }}
           port: {{ .Values.service.port }}
+      # Gateway/Envoy defaults to a 15s route timeout if unset — too short
+      # for Bedrock chat/analysis calls, which can take 10-20s+ under load.
+      # That mismatch is what caused intermittent "assistant unavailable"
+      # responses even though ai-service itself never errored.
+      timeouts:
+        request: 60s
 {{- end }}
