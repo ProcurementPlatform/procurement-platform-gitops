@@ -12,42 +12,42 @@ global:
 identity-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-identity"
-    tag: "6a6a722"
+    tag: "ec04d3a"
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-identity-service-irsa
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-identity-service-irsa
 procurement-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-procurement"
-    tag: "6a6a722"
+    tag: "ec04d3a"
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-procurement-service-irsa
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-procurement-service-irsa
 finance-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-finance"
-    tag: "6a6a722"
+    tag: "ec04d3a"
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-finance-service-irsa
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-finance-service-irsa
 document-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-document"
-    tag: "6a6a722"
+    tag: "ec04d3a"
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-document-service-irsa
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-document-service-irsa
 ai-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-ai"
-    tag: "6a6a722"
+    tag: "ec04d3a"
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-ai-service-irsa
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-ai-service-irsa
 frontend:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-frontend"
-    tag: "6a6a722"
+    tag: "ec04d3a"
   serviceAccount:
     annotations:
-      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/dev-frontend-irsa
+      eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-frontend-irsa
