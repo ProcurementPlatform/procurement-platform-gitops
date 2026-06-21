@@ -187,6 +187,11 @@ document-service:
       - /api/documents
       - /api/notifications
       - /api/audit
+      # Gateway PathPrefix matching is segment-based — "/api/audit" does not
+      # match "/api/audit-logs" (no "/" boundary). The frontend calls
+      # /api/audit-logs (which 301-redirects to /api/audit server-side), so
+      # both prefixes must be registered for that redirect to be reachable.
+      - /api/audit-logs
   resources:
     requests:
       cpu: 100m
