@@ -12,42 +12,42 @@ global:
 identity-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-identity"
-    tag: "ec04d3a"
+    tag: "9618ddf"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-identity-service-irsa
 procurement-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-procurement"
-    tag: "ec04d3a"
+    tag: "9618ddf"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-procurement-service-irsa
 finance-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-finance"
-    tag: "ec04d3a"
+    tag: "9618ddf"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-finance-service-irsa
 document-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-document"
-    tag: "ec04d3a"
+    tag: "9618ddf"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-document-service-irsa
 ai-service:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-ai"
-    tag: "ec04d3a"
+    tag: "9618ddf"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-ai-service-irsa
 frontend:
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-frontend"
-    tag: "ec04d3a"
+    tag: "9618ddf"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-frontend-irsa
