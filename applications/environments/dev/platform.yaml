@@ -21,3 +21,10 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+  # See prod/platform.yaml — HPAs manage spec.replicas live, this stops
+  # ArgoCD from fighting them and flapping OutOfSync/Synced forever.
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
