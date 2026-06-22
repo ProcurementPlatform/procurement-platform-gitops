@@ -16,6 +16,9 @@ global:
     nlb:
       scheme: internet-facing
       targetType: ip
+  # Default-deny + explicit allow NetworkPolicies — see templates/networkpolicies.yaml
+  networkPolicy:
+    enabled: true
 
 # Per-service defaults. Previously each charts/<service>/values.yaml carried these
 # independently; consolidated here so every subchart's values come from this single
