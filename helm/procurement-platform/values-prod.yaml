@@ -20,6 +20,7 @@ identity-service:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-identity-service-irsa
   autoscaling:
+    minReplicas: 2
     maxReplicas: 10
 procurement-service:
   replicaCount: 2
@@ -30,6 +31,7 @@ procurement-service:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-procurement-service-irsa
   autoscaling:
+    minReplicas: 2
     maxReplicas: 10
 finance-service:
   replicaCount: 2
@@ -40,6 +42,7 @@ finance-service:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-finance-service-irsa
   autoscaling:
+    minReplicas: 2
     maxReplicas: 10
 document-service:
   replicaCount: 2
@@ -50,6 +53,7 @@ document-service:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-document-service-irsa
   autoscaling:
+    minReplicas: 2
     maxReplicas: 10
 ai-service:
   replicaCount: 2
@@ -60,6 +64,7 @@ ai-service:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-ai-service-irsa
   autoscaling:
+    minReplicas: 2
     maxReplicas: 10
 frontend:
   replicaCount: 2
@@ -70,4 +75,5 @@ frontend:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-frontend-irsa
   autoscaling:
+    minReplicas: 2
     maxReplicas: 10
