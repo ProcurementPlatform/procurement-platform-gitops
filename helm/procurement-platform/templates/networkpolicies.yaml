@@ -1,0 +1,274 @@
+{{- if .Values.global.networkPolicy.enabled }}
+# Default-deny baseline: once any NetworkPolicy selects a pod for a given
+# direction, only explicitly allowed traffic passes for that direction.
+# This selects every pod in the namespace for both Ingress and Egress with
+# zero rules, denying everything; the policies below add back only the
+# specific paths the app actually uses (see platform-data.ts for the real
+# call graph — ai-service is the only service that calls another service
+# directly; everything else only talks to the Gateway and AWS APIs).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+# Every pod needs DNS to resolve in-cluster service names, and HTTPS egress
+# to call DynamoDB/S3/Secrets Manager/Bedrock/SES/Cognito — all outside the
+# cluster network, so NetworkPolicy can't scope this further without VPC
+# endpoints (not set up here).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-and-aws-egress
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+---
+# Gateway (Kgateway/Envoy) — receives traffic from the internet via the NLB
+# (no "from" means allow from any source, including non-pod IPs; an empty
+# "from: []" would instead mean allow from nowhere), and calls every backend
+# service on its container port.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      gateway.networking.k8s.io/gateway-name: procurement-{{ .Values.global.environment }}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 8443
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: identity-service
+      ports: [{ protocol: TCP, port: 5001 }]
+    - to:
+        - podSelector:
+            matchLabels:
+              app: finance-service
+      ports: [{ protocol: TCP, port: 5002 }]
+    - to:
+        - podSelector:
+            matchLabels:
+              app: procurement-service
+      ports: [{ protocol: TCP, port: 5003 }]
+    - to:
+        - podSelector:
+            matchLabels:
+              app: document-service
+      ports: [{ protocol: TCP, port: 5004 }]
+    - to:
+        - podSelector:
+            matchLabels:
+              app: ai-service
+      ports: [{ protocol: TCP, port: 5006 }]
+    - to:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports: [{ protocol: TCP, port: 80 }]
+---
+# identity-service: reachable from the Gateway (user-facing auth routes) and
+# from ai-service (profile lookups for RBAC scoping in Copilot/analysis).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-identity-service-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: identity-service
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: procurement-{{ .Values.global.environment }}
+        - podSelector:
+            matchLabels:
+              app: ai-service
+      ports:
+        - protocol: TCP
+          port: 5001
+---
+# finance-service: Gateway + ai-service (invoices/payments/customers lookups
+# for Copilot context and invoice risk analysis).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-finance-service-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: finance-service
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: procurement-{{ .Values.global.environment }}
+        - podSelector:
+            matchLabels:
+              app: ai-service
+      ports:
+        - protocol: TCP
+          port: 5002
+---
+# procurement-service: Gateway + ai-service (vendors/POs/contracts lookups).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-procurement-service-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: procurement-service
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: procurement-{{ .Values.global.environment }}
+        - podSelector:
+            matchLabels:
+              app: ai-service
+      ports:
+        - protocol: TCP
+          port: 5003
+---
+# document-service: Gateway + ai-service (document download/list feeding
+# Contract Intelligence and Document Search).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-document-service-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: document-service
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: procurement-{{ .Values.global.environment }}
+        - podSelector:
+            matchLabels:
+              app: ai-service
+      ports:
+        - protocol: TCP
+          port: 5004
+---
+# ai-service: only the Gateway calls it directly — it's a pure caller in the
+# call graph, never a callee of any other app service.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ai-service-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-service
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: procurement-{{ .Values.global.environment }}
+      ports:
+        - protocol: TCP
+          port: 5006
+---
+# ai-service is the only service that calls other services directly (see
+# platform-data.ts) — needs explicit egress to each peer; the shared
+# DNS/HTTPS-to-internet policy above does not cover these in-cluster ports.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ai-service-egress-to-peers
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: ai-service
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: identity-service
+      ports: [{ protocol: TCP, port: 5001 }]
+    - to:
+        - podSelector:
+            matchLabels:
+              app: finance-service
+      ports: [{ protocol: TCP, port: 5002 }]
+    - to:
+        - podSelector:
+            matchLabels:
+              app: procurement-service
+      ports: [{ protocol: TCP, port: 5003 }]
+    - to:
+        - podSelector:
+            matchLabels:
+              app: document-service
+      ports: [{ protocol: TCP, port: 5004 }]
+---
+# frontend: static content (nginx) — only reachable from the Gateway, calls
+# nothing server-side (all API calls happen browser-side, routed through
+# the Gateway, not proxied by this container).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-ingress
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: procurement-{{ .Values.global.environment }}
+      ports:
+        - protocol: TCP
+          port: 80
+{{- end }}
