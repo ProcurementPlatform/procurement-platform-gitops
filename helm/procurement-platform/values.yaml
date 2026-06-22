@@ -46,6 +46,8 @@ identity-service:
     targetPort: 5001
   healthCheck:
     path: /api/health
+  serviceMonitor:
+    enabled: true
   # HTTPRoute attaches to the shared Kgateway Gateway. Gateway API ranks rules
   # by longest-prefix match automatically, so no group.order is needed.
   httproute:
@@ -93,6 +95,8 @@ procurement-service:
     targetPort: 5003
   healthCheck:
     path: /api/health
+  serviceMonitor:
+    enabled: true
   httproute:
     enabled: true
     pathPrefixes:
@@ -139,6 +143,8 @@ finance-service:
     targetPort: 5002
   healthCheck:
     path: /api/health
+  serviceMonitor:
+    enabled: true
   httproute:
     enabled: true
     pathPrefixes:
@@ -184,6 +190,8 @@ document-service:
     targetPort: 5004
   healthCheck:
     path: /api/health
+  serviceMonitor:
+    enabled: true
   httproute:
     enabled: true
     pathPrefixes:
@@ -234,6 +242,8 @@ ai-service:
     targetPort: 5006
   healthCheck:
     path: /api/health
+  serviceMonitor:
+    enabled: true
   httproute:
     enabled: true
     pathPrefixes:

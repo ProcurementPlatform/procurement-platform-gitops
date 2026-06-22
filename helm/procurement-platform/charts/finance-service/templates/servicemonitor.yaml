@@ -1,0 +1,25 @@
+{{- if .Values.serviceMonitor.enabled }}
+# Tells the kube-prometheus-stack Prometheus to scrape this service's
+# /metrics endpoint (exposed by the shared prom-client middleware). The
+# `release: kube-prometheus-stack` label is required — Prometheus only
+# selects ServiceMonitors carrying it (serviceMonitorSelector), and its
+# namespace selector is empty so it picks these up from procurement-* too.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "chart.fullname" . }}
+  labels:
+    app: {{ .Chart.Name }}
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+{{- end }}
