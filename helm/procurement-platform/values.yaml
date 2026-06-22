@@ -281,19 +281,19 @@ frontend:
     fsGroup: 101
   securityContext:
     allowPrivilegeEscalation: false
-    # TEMPORARY: kept on :80 + NET_BIND_SERVICE because the deployed frontend
-    # image is still the port-80 build. The 8080 migration (drop this cap +
-    # targetPort 8080) is staged on the develop branch — merge it to main ONLY
-    # AFTER the 8080 frontend image (v1.0.0) is built and its tag is in
-    # values-prod.yaml, or the pod CrashLoopBackOffs (nginx can't bind :80
-    # without this cap).
+    # v1.0.0+ frontend image listens on 8080 (unprivileged), so no
+    # NET_BIND_SERVICE needed — drop ALL Linux capabilities (tightest posture).
+    # Safe now because values-prod.yaml pins the v1.0.0 (8080) image in this
+    # same commit, so image and port config change together.
     capabilities:
-      add:
-        - NET_BIND_SERVICE
+      drop:
+        - ALL
   service:
     type: ClusterIP
+    # Service presented on :80 (HTTPRoute references frontend:80); forwards to
+    # the container's :8080 where nginx listens.
     port: 80
-    targetPort: 80
+    targetPort: 8080
   healthCheck:
     path: /
   # Frontend is the catch-all (/). Longest-prefix ranking means the /api/*
