@@ -15,7 +15,7 @@ identity-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-identity"
-    tag: "v1.0.0"
+    tag: "v1.0.1"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-identity-service-irsa
@@ -26,7 +26,7 @@ procurement-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-procurement"
-    tag: "v1.0.0"
+    tag: "v1.0.1"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-procurement-service-irsa
@@ -37,7 +37,7 @@ finance-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-finance"
-    tag: "v1.0.0"
+    tag: "v1.0.1"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-finance-service-irsa
@@ -48,7 +48,7 @@ document-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-document"
-    tag: "v1.0.0"
+    tag: "v1.0.1"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-document-service-irsa
@@ -59,7 +59,7 @@ ai-service:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-ai"
-    tag: "v1.0.0"
+    tag: "v1.0.1"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-ai-service-irsa
@@ -70,7 +70,7 @@ frontend:
   replicaCount: 2
   image:
     repository: "919010206859.dkr.ecr.us-east-1.amazonaws.com/procurement-frontend"
-    tag: "v1.0.0"
+    tag: "v1.0.1"
   serviceAccount:
     annotations:
       eks.amazonaws.com/role-arn: arn:aws:iam::919010206859:role/prod-frontend-irsa
